@@ -1,11 +1,7 @@
-"""  
-Copyright (c) 2019-present NAVER Corp.
-MIT License
-"""
-
 # -*- coding: utf-8 -*-
 import numpy as np
 from skimage import io
+from skimage.transform import resize
 import cv2
 
 def loadImage(img_file):
@@ -13,9 +9,17 @@ def loadImage(img_file):
     if img.shape[0] == 2: img = img[0]
     if len(img.shape) == 2 : img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
     if img.shape[2] == 4:   img = img[:,:,:3]
-    img = np.array(img)
+    orig = img
+    limit_size = 768
+    ratio = img.shape[0]/img.shape[1]
+    if img.shape[0] > limit_size:
+        img = cv2.resize(img, (int(limit_size/ratio),limit_size))
+    if img.shape[1] > limit_size:
+        img = cv2.resize(img, (limit_size, int(limit_size*ratio)))
+    #img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+#     img = np.array(img)
 
-    return img
+    return orig, img
 
 def normalizeMeanVariance(in_img, mean=(0.485, 0.456, 0.406), variance=(0.229, 0.224, 0.225)):
     # should be RGB order
